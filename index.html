@@ -1,0 +1,1364 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VocabUp | Vocabulary Learning</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --purple: #8b5cf6;
+    --dark-purple: #6d28d9;
+    --bg: #f7f5ff;
+    --card: #ffffff;
+    --text: #24213a;
+    --muted: #77738b;
+    --border: #ebe7f5;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+header {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 17px 6%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.logo {
+    color: var(--dark-purple);
+    font-size: 27px;
+    font-weight: 800;
+}
+
+.logo span {
+    color: var(--text);
+}
+
+header p {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 3px;
+}
+
+main {
+    max-width: 1150px;
+    padding: 28px 20px 50px;
+    margin: auto;
+}
+
+.welcome {
+    background: linear-gradient(120deg, #6d28d9, #a78bfa);
+    color: white;
+    border-radius: 22px;
+    padding: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 25px;
+}
+
+.welcome h1 {
+    font-size: clamp(25px, 4vw, 36px);
+    margin-bottom: 10px;
+}
+
+.welcome p {
+    color: #eee7ff;
+    line-height: 1.6;
+}
+
+.daily-word {
+    background: rgba(255,255,255,.17);
+    padding: 18px 25px;
+    border-radius: 16px;
+    min-width: 190px;
+}
+
+.daily-word small {
+    color: #eee7ff;
+}
+
+.daily-word h2 {
+    margin: 8px 0;
+    font-size: 26px;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.stat, .panel {
+    background: var(--card);
+    padding: 22px;
+    border-radius: 17px;
+    border: 1px solid var(--border);
+}
+
+.stat .icon {
+    font-size: 25px;
+}
+
+.stat p {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 12px 0 5px;
+}
+
+.stat h2 {
+    font-size: 28px;
+}
+
+nav {
+    display: flex;
+    gap: 9px;
+    overflow-x: auto;
+    margin-bottom: 25px;
+    padding-bottom: 5px;
+}
+
+nav button {
+    background: white;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 12px 19px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+nav button.active, nav button:hover {
+    background: var(--dark-purple);
+    color: white;
+    border-color: var(--dark-purple);
+}
+
+.section {
+    display: none;
+}
+
+.section.active {
+    display: block;
+}
+
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.section-heading h2 {
+    font-size: 24px;
+}
+
+.section-heading p {
+    color: var(--muted);
+    margin-top: 6px;
+    font-size: 14px;
+}
+
+select, input {
+    padding: 11px 13px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font: inherit;
+    background: white;
+    color: var(--text);
+    max-width: 100%;
+}
+
+button {
+    font-family: inherit;
+}
+
+.btn {
+    padding: 12px 18px;
+    border: none;
+    border-radius: 11px;
+    cursor: pointer;
+    background: var(--purple);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    transition: .2s;
+}
+
+.btn:hover {
+    background: var(--dark-purple);
+    transform: translateY(-1px);
+}
+
+.btn.secondary {
+    color: var(--dark-purple);
+    background: #f0eaff;
+}
+
+.btn.light {
+    background: white;
+    color: var(--dark-purple);
+}
+
+.btn:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.learn-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 270px;
+    gap: 20px;
+}
+
+.flashcard-area {
+    text-align: center;
+}
+
+.card-scene {
+    perspective: 1000px;
+    max-width: 600px;
+    margin: 0 auto 20px;
+    height: 310px;
+    cursor: pointer;
+}
+
+.flashcard {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform .55s;
+}
+
+.flashcard.flipped {
+    transform: rotateY(180deg);
+}
+
+.card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 22px;
+    background: white;
+    border: 1px solid var(--border);
+    box-shadow: 0 8px 25px rgba(65, 40, 120, .07);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 25px;
+}
+
+.card-back {
+    transform: rotateY(180deg);
+    background: linear-gradient(145deg, #f1eaff, #ffffff);
+}
+
+.card-face small {
+    color: var(--muted);
+    margin-bottom: 18px;
+}
+
+.card-face h2 {
+    font-size: clamp(28px, 5vw, 42px);
+    color: var(--dark-purple);
+    margin-bottom: 12px;
+}
+
+.card-face p {
+    line-height: 1.7;
+    max-width: 420px;
+}
+
+.card-actions, .controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.progress-track {
+    background: #eee9fa;
+    height: 8px;
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 12px 0;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0;
+    background: var(--purple);
+    transition: width .3s;
+}
+
+.panel h3 {
+    margin-bottom: 14px;
+}
+
+.category-list {
+    display: grid;
+    gap: 10px;
+}
+
+.category-item {
+    border: 1px solid var(--border);
+    background: white;
+    padding: 13px;
+    border-radius: 11px;
+    text-align: left;
+    cursor: pointer;
+    color: var(--text);
+}
+
+.category-item:hover {
+    border-color: var(--purple);
+    background: #faf8ff;
+}
+
+.category-item small {
+    display: block;
+    margin-top: 5px;
+    color: var(--muted);
+}
+
+.quiz-box {
+    max-width: 720px;
+    margin: auto;
+}
+
+.quiz-question {
+    font-size: 23px;
+    line-height: 1.5;
+    margin: 18px 0 22px;
+}
+
+.answers {
+    display: grid;
+    gap: 12px;
+}
+
+.answer {
+    padding: 15px;
+    text-align: left;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 15px;
+    color: var(--text);
+}
+
+.answer:hover:not(:disabled) {
+    border-color: var(--purple);
+    background: #f6f0ff;
+}
+
+.answer.correct {
+    background: #dcfce7;
+    border-color: #22c55e;
+}
+
+.answer.wrong {
+    background: #fee2e2;
+    border-color: #ef4444;
+}
+
+.feedback {
+    margin: 16px 0;
+    line-height: 1.6;
+    font-weight: 600;
+}
+
+.word-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.word-card {
+    background: white;
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: 15px;
+}
+
+.word-card h3 {
+    color: var(--dark-purple);
+    margin-bottom: 10px;
+}
+
+.word-card p {
+    line-height: 1.6;
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+.word-card small {
+    color: var(--muted);
+}
+
+.word-card button {
+    margin-top: 12px;
+}
+
+.empty {
+    background: white;
+    padding: 35px;
+    border: 1px dashed #c9b9ee;
+    border-radius: 16px;
+    text-align: center;
+    color: var(--muted);
+    grid-column: 1 / -1;
+}
+
+.result {
+    text-align: center;
+    padding: 30px;
+}
+
+.result h2 {
+    color: var(--dark-purple);
+    font-size: 34px;
+    margin-bottom: 12px;
+}
+
+.result p {
+    margin: 10px 0 20px;
+    color: var(--muted);
+}
+
+.history-list {
+    display: grid;
+    gap: 12px;
+}
+
+.history-item {
+    padding: 15px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+@media (max-width: 800px) {
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .learn-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .word-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    main {
+        padding: 20px 12px 35px;
+    }
+
+    .welcome {
+        padding: 24px 19px;
+    }
+
+    .stats {
+        gap: 9px;
+    }
+
+    .stat {
+        padding: 15px;
+    }
+
+    .stat h2 {
+        font-size: 23px;
+    }
+
+    .word-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .card-scene {
+        height: 290px;
+    }
+
+    .panel {
+        padding: 17px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div>
+        <div class="logo">Vocab<span>Up.</span> ✦</div>
+        <p>Learn a word. Grow every day.</p>
+    </div>
+    <div>📚 Your vocabulary journey</div>
+</header>
+
+<main>
+
+    <section class="welcome">
+        <div>
+            <h1>Expand your vocabulary! ✨</h1>
+            <p>Small steps every day lead to big improvements.<br>
+            Learn words, practice them, and track your growth.</p>
+        </div>
+        <div class="daily-word">
+            <small>🌟 WORD OF THE DAY</small>
+            <h2 id="dailyWord">Resilient</h2>
+            <p id="dailyMeaning">Able to recover quickly.</p>
+        </div>
+    </section>
+
+    <section class="stats">
+        <div class="stat">
+            <div class="icon">📖</div>
+            <p>Words Available</p>
+            <h2 id="totalWords">0</h2>
+        </div>
+        <div class="stat">
+            <div class="icon">🎯</div>
+            <p>Words Mastered</p>
+            <h2 id="masteredCount">0</h2>
+        </div>
+        <div class="stat">
+            <div class="icon">❤️</div>
+            <p>Favorite Words</p>
+            <h2 id="favoriteCount">0</h2>
+        </div>
+        <div class="stat">
+            <div class="icon">🏆</div>
+            <p>Quiz Accuracy</p>
+            <h2 id="accuracy">0%</h2>
+        </div>
+    </section>
+
+    <nav>
+        <button class="active" data-tab="learn">📚 Learn</button>
+        <button data-tab="quiz">🧠 Quiz</button>
+        <button data-tab="favorites">❤️ Favorites</button>
+        <button data-tab="progress">📊 Progress</button>
+    </nav>
+
+    <!-- LEARN SECTION -->
+    <section class="section active" id="learn">
+        <div class="section-heading">
+            <div>
+                <h2>Flashcard Learning</h2>
+                <p>Tap a card to discover its meaning.</p>
+            </div>
+            <select id="categoryFilter">
+                <option value="All">All Categories</option>
+                <option value="Daily English">Daily English</option>
+                <option value="Interview">Interview Vocabulary</option>
+                <option value="Advanced">Advanced English</option>
+                <option value="Academic">Academic Vocabulary</option>
+            </select>
+        </div>
+
+        <div class="learn-layout">
+            <div class="flashcard-area">
+                <div class="card-scene" id="cardScene" tabindex="0"
+                     role="button" aria-label="Flip flashcard">
+                    <div class="flashcard" id="flashcard">
+                        <div class="card-face card-front">
+                            <small id="cardCategory">DAILY ENGLISH</small>
+                            <h2 id="word">Resilient</h2>
+                            <p>Think about the meaning 🤔</p>
+                            <small style="margin-top:22px">
+                                Click to reveal the answer ↻
+                            </small>
+                        </div>
+                        <div class="card-face card-back">
+                            <small>MEANING</small>
+                            <h2 id="meaningTitle">Resilient</h2>
+                            <p id="meaning"></p>
+                            <p id="example" style="margin-top:12px"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-actions">
+                    <button class="btn secondary" id="speakBtn">🔊 Pronounce</button>
+                    <button class="btn secondary" id="favoriteBtn">♡ Favorite</button>
+                    <button class="btn secondary" id="masterBtn">✓ Mark as Mastered</button>
+                </div>
+
+                <div class="controls">
+                    <button class="btn secondary" id="prevBtn">← Previous</button>
+                    <button class="btn" id="flipBtn">Flip Card</button>
+                    <button class="btn" id="nextBtn">Next →</button>
+                </div>
+
+                <p id="cardPosition">Card 1 of 1</p>
+                <div class="progress-track">
+                    <div class="progress-fill" id="learnProgress"></div>
+                </div>
+            </div>
+
+            <aside class="panel">
+                <h3>Explore Categories</h3>
+                <div class="category-list">
+                    <button class="category-item" data-category="All">
+                        🌈 All Words
+                        <small>Explore every category</small>
+                    </button>
+                    <button class="category-item" data-category="Daily English">
+                        💬 Daily English
+                        <small>Useful everyday words</small>
+                    </button>
+                    <button class="category-item" data-category="Interview">
+                        💼 Interview Vocabulary
+                        <small>Prepare for placements</small>
+                    </button>
+                    <button class="category-item" data-category="Advanced">
+                        🚀 Advanced English
+                        <small>Challenge yourself</small>
+                    </button>
+                    <button class="category-item" data-category="Academic">
+                        🎓 Academic Vocabulary
+                        <small>Improve formal English</small>
+                    </button>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <!-- QUIZ SECTION -->
+    <section class="section" id="quiz">
+        <div class="section-heading">
+            <div>
+                <h2>Vocabulary Challenge 🧠</h2>
+                <p>Choose the correct meaning of each word.</p>
+            </div>
+            <button class="btn" id="startQuizBtn">Start New Quiz</button>
+        </div>
+
+        <div class="panel quiz-box" id="quizBox">
+            <div id="quizContent">
+                <div class="result">
+                    <div style="font-size:50px">🎯</div>
+                    <h2>Ready to practice?</h2>
+                    <p>Test your knowledge with a vocabulary quiz.</p>
+                    <button class="btn" id="beginQuizBtn">Start Quiz</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAVORITES SECTION -->
+    <section class="section" id="favorites">
+        <div class="section-heading">
+            <div>
+                <h2>Your Favorite Words ❤️</h2>
+                <p>Keep important words in one place.</p>
+            </div>
+        </div>
+        <div class="word-grid" id="favoriteGrid"></div>
+    </section>
+
+    <!-- PROGRESS SECTION -->
+    <section class="section" id="progress">
+        <div class="section-heading">
+            <div>
+                <h2>Your Learning Progress 📊</h2>
+                <p>See how far you have come.</p>
+            </div>
+            <button class="btn secondary" id="resetBtn">Reset Progress</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="icon">📚</div>
+                <p>Mastered Words</p>
+                <h2 id="progressMastered">0</h2>
+            </div>
+            <div class="stat">
+                <div class="icon">📝</div>
+                <p>Quizzes Completed</p>
+                <h2 id="quizCount">0</h2>
+            </div>
+            <div class="stat">
+                <div class="icon">✅</div>
+                <p>Correct Answers</p>
+                <h2 id="correctCount">0</h2>
+            </div>
+            <div class="stat">
+                <div class="icon">📈</div>
+                <p>Overall Accuracy</p>
+                <h2 id="progressAccuracy">0%</h2>
+            </div>
+        </div>
+
+        <div class="panel" style="margin-bottom:20px">
+            <h3>Vocabulary Mastery</h3>
+            <p id="masteryText">0 words mastered</p>
+            <div class="progress-track">
+                <div class="progress-fill" id="masteryProgress"></div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>Recent Quiz Results</h3>
+            <div class="history-list" id="historyList"></div>
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    VocabUp © 2026 · Learn a little, improve a lot 💜
+</footer>
+
+<script>
+// VOCABULARY DATA
+const words = [
+    {
+        word: "Resilient",
+        meaning: "Able to recover quickly from difficulties.",
+        example: "She remained resilient during challenging times.",
+        category: "Advanced"
+    },
+    {
+        word: "Diligent",
+        meaning: "Showing care and effort in your work.",
+        example: "A diligent student practices every day.",
+        category: "Academic"
+    },
+    {
+        word: "Confident",
+        meaning: "Believing in your own abilities.",
+        example: "He felt confident before his interview.",
+        category: "Interview"
+    },
+    {
+        word: "Articulate",
+        meaning: "Able to express ideas clearly.",
+        example: "She gave an articulate presentation.",
+        category: "Interview"
+    },
+    {
+        word: "Enhance",
+        meaning: "To improve or increase the quality of something.",
+        example: "Reading can enhance your vocabulary.",
+        category: "Academic"
+    },
+    {
+        word: "Abundant",
+        meaning: "Existing in large quantities.",
+        example: "The library has abundant resources.",
+        category: "Advanced"
+    },
+    {
+        word: "Curious",
+        meaning: "Eager to learn or know something.",
+        example: "A curious mind asks questions.",
+        category: "Daily English"
+    },
+    {
+        word: "Adapt",
+        meaning: "To change to suit a new situation.",
+        example: "Good employees adapt to change.",
+        category: "Interview"
+    },
+    {
+        word: "Concise",
+        meaning: "Giving information clearly using few words.",
+        example: "Keep your interview answers concise.",
+        category: "Interview"
+    },
+    {
+        word: "Empathy",
+        meaning: "The ability to understand another person's feelings.",
+        example: "Empathy helps build strong relationships.",
+        category: "Advanced"
+    },
+    {
+        word: "Innovative",
+        meaning: "Introducing new ideas or methods.",
+        example: "The team developed an innovative solution.",
+        category: "Interview"
+    },
+    {
+        word: "Meticulous",
+        meaning: "Very careful and attentive to detail.",
+        example: "She is meticulous when checking her code.",
+        category: "Advanced"
+    },
+    {
+        word: "Grateful",
+        meaning: "Feeling thankful for something.",
+        example: "I am grateful for your help.",
+        category: "Daily English"
+    },
+    {
+        word: "Reliable",
+        meaning: "Able to be trusted or depended on.",
+        example: "A reliable teammate keeps promises.",
+        category: "Interview"
+    },
+    {
+        word: "Ambiguous",
+        meaning: "Having more than one possible meaning.",
+        example: "The instructions were ambiguous.",
+        category: "Academic"
+    },
+    {
+        word: "Persistent",
+        meaning: "Continuing despite difficulties.",
+        example: "Persistent effort helps you improve.",
+        category: "Advanced"
+    },
+    {
+        word: "Collaborate",
+        meaning: "To work together toward a common goal.",
+        example: "Developers collaborate on projects.",
+        category: "Interview"
+    },
+    {
+        word: "Essential",
+        meaning: "Absolutely necessary or very important.",
+        example: "Practice is essential for learning.",
+        category: "Academic"
+    },
+    {
+        word: "Versatile",
+        meaning: "Able to do many different things well.",
+        example: "A versatile developer learns different tools.",
+        category: "Advanced"
+    },
+    {
+        word: "Appreciate",
+        meaning: "To recognize the value of something.",
+        example: "I appreciate your thoughtful advice.",
+        category: "Daily English"
+    }
+];
+
+// LOAD SAVED DATA
+function loadData(key, fallback) {
+    try {
+        const saved = localStorage.getItem(key);
+        return saved ? JSON.parse(saved) : fallback;
+    } catch (error) {
+        return fallback;
+    }
+}
+
+let favorites = loadData("vocabFavorites", []);
+let mastered = loadData("vocabMastered", []);
+let quizHistory = loadData("vocabQuizHistory", []);
+let totalQuestions = Number(localStorage.getItem("vocabTotalQuestions")) || 0;
+let totalCorrect = Number(localStorage.getItem("vocabTotalCorrect")) || 0;
+
+let currentCategory = "All";
+let filteredWords = [...words];
+let currentIndex = 0;
+let quizQuestions = [];
+let quizIndex = 0;
+let quizScore = 0;
+let answered = false;
+
+// SAVE DATA
+function saveData() {
+    localStorage.setItem("vocabFavorites", JSON.stringify(favorites));
+    localStorage.setItem("vocabMastered", JSON.stringify(mastered));
+    localStorage.setItem("vocabQuizHistory", JSON.stringify(quizHistory));
+    localStorage.setItem("vocabTotalQuestions", totalQuestions);
+    localStorage.setItem("vocabTotalCorrect", totalCorrect);
+}
+
+// SAFE TEXT HELPER
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, function (char) {
+        return {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        }[char];
+    });
+}
+
+// NAVIGATION
+document.querySelectorAll("nav button").forEach(button => {
+    button.addEventListener("click", () => {
+        document.querySelectorAll("nav button").forEach(btn =>
+            btn.classList.remove("active")
+        );
+
+        document.querySelectorAll(".section").forEach(section =>
+            section.classList.remove("active")
+        );
+
+        button.classList.add("active");
+        document.getElementById(button.dataset.tab).classList.add("active");
+
+        if (button.dataset.tab === "favorites") renderFavorites();
+        if (button.dataset.tab === "progress") renderProgress();
+    });
+});
+
+function openTab(tabName) {
+    document.querySelectorAll("nav button").forEach(button => {
+        button.classList.toggle("active", button.dataset.tab === tabName);
+    });
+
+    document.querySelectorAll(".section").forEach(section => {
+        section.classList.toggle("active", section.id === tabName);
+    });
+}
+
+// DASHBOARD
+function updateDashboard() {
+    document.getElementById("totalWords").textContent = words.length;
+    document.getElementById("masteredCount").textContent = mastered.length;
+    document.getElementById("favoriteCount").textContent = favorites.length;
+
+    const accuracy = totalQuestions
+        ? Math.round(totalCorrect / totalQuestions * 100)
+        : 0;
+
+    document.getElementById("accuracy").textContent = accuracy + "%";
+
+    const dailyIndex = Math.floor(Date.now() / 86400000) % words.length;
+    const daily = words[dailyIndex];
+
+    document.getElementById("dailyWord").textContent = daily.word;
+    document.getElementById("dailyMeaning").textContent = daily.meaning;
+}
+
+// FLASHCARDS
+function renderCard() {
+    if (!filteredWords.length) return;
+
+    currentIndex = Math.max(0, Math.min(currentIndex, filteredWords.length - 1));
+
+    const item = filteredWords[currentIndex];
+
+    document.getElementById("flashcard").classList.remove("flipped");
+    document.getElementById("word").textContent = item.word;
+    document.getElementById("meaningTitle").textContent = item.word;
+    document.getElementById("meaning").textContent = item.meaning;
+    document.getElementById("example").textContent = "Example: " + item.example;
+    document.getElementById("cardCategory").textContent = item.category.toUpperCase();
+
+    document.getElementById("cardPosition").textContent =
+        `Card ${currentIndex + 1} of ${filteredWords.length}`;
+
+    document.getElementById("learnProgress").style.width =
+        ((currentIndex + 1) / filteredWords.length * 100) + "%";
+
+    document.getElementById("prevBtn").disabled = currentIndex === 0;
+    document.getElementById("nextBtn").disabled =
+        currentIndex === filteredWords.length - 1;
+
+    document.getElementById("favoriteBtn").textContent =
+        favorites.includes(item.word) ? "♥ Favorited" : "♡ Favorite";
+
+    document.getElementById("masterBtn").textContent =
+        mastered.includes(item.word) ? "✓ Mastered" : "✓ Mark as Mastered";
+}
+
+function flipCard() {
+    document.getElementById("flashcard").classList.toggle("flipped");
+}
+
+document.getElementById("cardScene").addEventListener("click", flipCard);
+document.getElementById("flipBtn").addEventListener("click", flipCard);
+
+document.getElementById("cardScene").addEventListener("keydown", event => {
+    if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        flipCard();
+    }
+});
+
+document.getElementById("prevBtn").addEventListener("click", () => {
+    if (currentIndex > 0) {
+        currentIndex--;
+        renderCard();
+    }
+});
+
+document.getElementById("nextBtn").addEventListener("click", () => {
+    if (currentIndex < filteredWords.length - 1) {
+        currentIndex++;
+        renderCard();
+    }
+});
+
+function filterCategory(category) {
+    currentCategory = category;
+
+    document.getElementById("categoryFilter").value = category;
+
+    filteredWords = category === "All"
+        ? [...words]
+        : words.filter(item => item.category === category);
+
+    currentIndex = 0;
+    renderCard();
+}
+
+document.getElementById("categoryFilter").addEventListener("change", event => {
+    filterCategory(event.target.value);
+});
+
+document.querySelectorAll("[data-category]").forEach(button => {
+    button.addEventListener("click", () => {
+        filterCategory(button.dataset.category);
+        openTab("learn");
+    });
+});
+
+// PRONUNCIATION
+document.getElementById("speakBtn").addEventListener("click", () => {
+    if (!("speechSynthesis" in window)) {
+        alert("Speech pronunciation is not supported in this browser.");
+        return;
+    }
+
+    const item = filteredWords[currentIndex];
+    window.speechSynthesis.cancel();
+
+    const speech = new SpeechSynthesisUtterance(item.word);
+    speech.lang = "en-US";
+    speech.rate = 0.85;
+    window.speechSynthesis.speak(speech);
+});
+
+// FAVORITES AND MASTERY
+document.getElementById("favoriteBtn").addEventListener("click", () => {
+    const item = filteredWords[currentIndex];
+
+    if (favorites.includes(item.word)) {
+        favorites = favorites.filter(word => word !== item.word);
+    } else {
+        favorites.push(item.word);
+    }
+
+    saveData();
+    renderCard();
+    updateDashboard();
+});
+
+document.getElementById("masterBtn").addEventListener("click", () => {
+    const item = filteredWords[currentIndex];
+
+    if (mastered.includes(item.word)) {
+        mastered = mastered.filter(word => word !== item.word);
+    } else {
+        mastered.push(item.word);
+    }
+
+    saveData();
+    renderCard();
+    updateDashboard();
+});
+
+// FAVORITES PAGE
+function renderFavorites() {
+    const grid = document.getElementById("favoriteGrid");
+
+    const items = words.filter(item => favorites.includes(item.word));
+
+    if (!items.length) {
+        grid.innerHTML = `
+            <div class="empty">
+                <div style="font-size:40px">💜</div>
+                <h3 style="margin:12px">No favorite words yet</h3>
+                <p>Use the Favorite button while learning to save words here.</p>
+                <br>
+                <button class="btn" onclick="openTab('learn')">Explore Words</button>
+            </div>`;
+        return;
+    }
+
+    grid.innerHTML = items.map(item => `
+        <div class="word-card">
+            <small>${escapeHTML(item.category)}</small>
+            <h3>${escapeHTML(item.word)}</h3>
+            <p>${escapeHTML(item.meaning)}</p>
+            <p><i>${escapeHTML(item.example)}</i></p>
+            <button class="btn secondary"
+                onclick="removeFavorite('${escapeHTML(item.word)}')">
+                ♥ Remove Favorite
+            </button>
+        </div>
+    `).join("");
+}
+
+function removeFavorite(word) {
+    favorites = favorites.filter(item => item !== word);
+    saveData();
+    renderFavorites();
+    updateDashboard();
+}
+
+// QUIZ
+function startQuiz() {
+    quizQuestions = [...words]
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 10);
+
+    quizIndex = 0;
+    quizScore = 0;
+    answered = false;
+
+    renderQuestion();
+}
+
+document.getElementById("startQuizBtn").addEventListener("click", startQuiz);
+document.getElementById("beginQuizBtn").addEventListener("click", startQuiz);
+
+function renderQuestion() {
+    const container = document.getElementById("quizContent");
+
+    if (quizIndex >= quizQuestions.length) {
+        finishQuiz();
+        return;
+    }
+
+    answered = false;
+    const item = quizQuestions[quizIndex];
+
+    const wrongOptions = words
+        .filter(word => word.word !== item.word)
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3)
+        .map(word => word.meaning);
+
+    const options = [...wrongOptions, item.meaning]
+        .sort(() => Math.random() - 0.5);
+
+    container.innerHTML = `
+        <div style="display:flex;justify-content:space-between;gap:10px">
+            <span>Question ${quizIndex + 1} of ${quizQuestions.length}</span>
+            <strong>Score: ${quizScore}</strong>
+        </div>
+        <div class="progress-track">
+            <div class="progress-fill"
+                style="width:${quizIndex / quizQuestions.length * 100}%"></div>
+        </div>
+        <h2 class="quiz-question">
+            What is the meaning of "${escapeHTML(item.word)}"?
+        </h2>
+        <div class="answers">
+            ${options.map((option, index) => `
+                <button class="answer" data-answer="${index}">
+                    ${String.fromCharCode(65 + index)}.
+                    ${escapeHTML(option)}
+                </button>
+            `).join("")}
+        </div>
+        <div class="feedback" id="feedback" aria-live="polite"></div>
+        <button class="btn" id="nextQuestionBtn" disabled>
+            ${quizIndex === quizQuestions.length - 1
+                ? "View Results" : "Next Question →"}
+        </button>
+    `;
+
+    container.querySelectorAll(".answer").forEach(button => {
+        button.addEventListener("click", () => {
+            if (answered) return;
+            answered = true;
+
+            const selected = options[Number(button.dataset.answer)];
+            const correct = selected === item.meaning;
+
+            totalQuestions++;
+
+            if (correct) {
+                quizScore++;
+                totalCorrect++;
+            }
+
+            saveData();
+
+            container.querySelectorAll(".answer").forEach(answer => {
+                answer.disabled = true;
+
+                const answerText = options[Number(answer.dataset.answer)];
+
+                if (answerText === item.meaning) {
+                    answer.classList.add("correct");
+                } else if (answer === button && !correct) {
+                    answer.classList.add("wrong");
+                }
+            });
+
+            document.getElementById("feedback").textContent = correct
+                ? "✅ Correct! Great job!"
+                : "❌ Not quite. The correct meaning is: " + item.meaning;
+
+            document.getElementById("nextQuestionBtn").disabled = false;
+            updateDashboard();
+        });
+    });
+
+    document.getElementById("nextQuestionBtn").addEventListener("click", () => {
+        if (!answered) return;
+        quizIndex++;
+        renderQuestion();
+    });
+}
+
+function finishQuiz() {
+    const percentage = Math.round(quizScore / quizQuestions.length * 100);
+
+    quizHistory.unshift({
+        score: quizScore,
+        total: quizQuestions.length,
+        percentage: percentage,
+        date: new Date().toLocaleDateString()
+    });
+
+    quizHistory = quizHistory.slice(0, 10);
+    saveData();
+
+    document.getElementById("quizContent").innerHTML = `
+        <div class="result">
+            <div style="font-size:60px">
+                ${percentage >= 70 ? "🏆" : "💪"}
+            </div>
+            <h2>Quiz Completed!</h2>
+            <p>You scored ${quizScore} out of ${quizQuestions.length}.</p>
+            <h2>${percentage}%</h2>
+            <p>
+                ${percentage >= 80
+                    ? "Excellent work! Keep learning new words."
+                    : percentage >= 50
+                    ? "Good effort! Keep practicing to improve."
+                    : "Keep going! Revision will help you improve."}
+            </p>
+            <button class="btn" onclick="startQuiz()">Try Again</button>
+            <button class="btn secondary"
+                onclick="openTab('progress')">View Progress</button>
+        </div>
+    `;
+
+    updateDashboard();
+    renderProgress();
+}
+
+// PROGRESS PAGE
+function renderProgress() {
+    const accuracy = totalQuestions
+        ? Math.round(totalCorrect / totalQuestions * 100)
+        : 0;
+
+    document.getElementById("progressMastered").textContent = mastered.length;
+    document.getElementById("quizCount").textContent = quizHistory.length;
+    document.getElementById("correctCount").textContent = totalCorrect;
+    document.getElementById("progressAccuracy").textContent = accuracy + "%";
+
+    document.getElementById("masteryText").textContent =
+        `${mastered.length} of ${words.length} words mastered`;
+
+    document.getElementById("masteryProgress").style.width =
+        (mastered.length / words.length * 100) + "%";
+
+    const history = document.getElementById("historyList");
+
+    if (!quizHistory.length) {
+        history.innerHTML = `
+            <div class="empty">
+                No quiz results yet. Complete your first quiz to see progress!
+            </div>`;
+        return;
+    }
+
+    history.innerHTML = quizHistory.map(item => `
+        <div class="history-item">
+            <div>
+                <strong>Vocabulary Quiz</strong>
+                <p style="color:var(--muted);margin-top:5px">
+                    ${escapeHTML(item.date)}
+                </p>
+            </div>
+            <div style="text-align:right">
+                <strong>${item.score}/${item.total}</strong>
+                <p style="color:var(--dark-purple);margin-top:5px">
+                    ${item.percentage}%
+                </p>
+            </div>
+        </div>
+    `).join("");
+}
+
+// RESET SAVED PROGRESS
+document.getElementById("resetBtn").addEventListener("click", () => {
+    const confirmed = confirm(
+        "Reset all learning progress, favorites, and quiz history?"
+    );
+
+    if (!confirmed) return;
+
+    favorites = [];
+    mastered = [];
+    quizHistory = [];
+    totalQuestions = 0;
+    totalCorrect = 0;
+
+    saveData();
+    updateDashboard();
+    renderCard();
+    renderProgress();
+    renderFavorites();
+
+    alert("Your learning progress has been reset.");
+});
+
+// INITIALIZE APPLICATION
+updateDashboard();
+renderCard();
+renderFavorites();
+renderProgress();
+</script>
+
+</body>
+</html>
